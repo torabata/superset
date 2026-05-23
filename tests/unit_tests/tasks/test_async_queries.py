@@ -14,6 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+from typing import Any
 from unittest import mock
 from unittest.mock import MagicMock
 
@@ -42,7 +43,7 @@ def test_load_chart_data_into_cache_with_error(
     from superset.tasks.async_queries import load_chart_data_into_cache
 
     job_metadata = {"user_id": 1}
-    form_data = {}
+    form_data: dict[str, Any] = {}
     err_message = "Something went wrong"
     err = ChartDataQueryFailedError(_(err_message))
 
@@ -77,7 +78,7 @@ def test_load_chart_data_into_cache_with_superset_error_exception(
     from superset.tasks.async_queries import load_chart_data_into_cache
 
     job_metadata = {"user_id": 1}
-    form_data = {}
+    form_data: dict[str, Any] = {}
 
     superset_error = SupersetError(
         message="Access denied to datasource",
@@ -122,7 +123,7 @@ def test_load_chart_data_into_cache_with_superset_errors_exception(
     from superset.tasks.async_queries import load_chart_data_into_cache
 
     job_metadata = {"user_id": 1}
-    form_data = {}
+    form_data: dict[str, Any] = {}
 
     superset_errors = [
         SupersetError(
@@ -181,7 +182,7 @@ def test_load_explore_json_into_cache_preserves_oauth2_redirect_error(
     from superset.tasks.async_queries import load_explore_json_into_cache
 
     job_metadata = {"user_id": 1}
-    form_data: dict = {}
+    form_data: dict[str, Any] = {}
 
     mock_get_datasource_info.return_value = (1, "table")
     mock_security_manager.get_user_by_id.return_value = mock.MagicMock()
@@ -224,7 +225,7 @@ def test_load_explore_json_into_cache_preserves_superset_errors_exception(
     from superset.tasks.async_queries import load_explore_json_into_cache
 
     job_metadata = {"user_id": 1}
-    form_data: dict = {}
+    form_data: dict[str, Any] = {}
 
     mock_get_datasource_info.return_value = (1, "table")
     mock_security_manager.get_user_by_id.return_value = mock.MagicMock()
@@ -272,7 +273,7 @@ def test_load_explore_json_into_cache_preserves_superset_viz_exception(
     from superset.tasks.async_queries import load_explore_json_into_cache
 
     job_metadata = {"user_id": 1}
-    form_data: dict = {}
+    form_data: dict[str, Any] = {}
 
     mock_get_datasource_info.return_value = (1, "table")
     mock_security_manager.get_user_by_id.return_value = mock.MagicMock()
@@ -313,7 +314,7 @@ def test_load_explore_json_into_cache_falls_back_to_string_for_generic_exception
     from superset.tasks.async_queries import load_explore_json_into_cache
 
     job_metadata = {"user_id": 1}
-    form_data: dict = {}
+    form_data: dict[str, Any] = {}
 
     mock_get_datasource_info.return_value = (1, "table")
     mock_security_manager.get_user_by_id.return_value = mock.MagicMock()
