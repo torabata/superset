@@ -1,92 +1,113 @@
-"""GitHub Issue Triage Orchestrator."""
+"""
+GitHub Issue Triage Orchestrator.
+
+Triggered by GitHub Actions when an issue is labeled `devin-triage`.
+Reads the issue from the GitHub event payload, then creates a Devin
+session with Playbook + Knowledge Notes + structured output.
+"""
 import json
 import os
 import sys
-from pathlib import Path
 
 import requests
 
+# ─── Config ───────────────────────────────────────────────────────────
 DEVIN_API_KEY = os.environ["DEVIN_API_KEY"]
 DEVIN_ORG_ID = os.environ["DEVIN_ORG_ID"]
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 GITHUB_REPO = os.environ.get("GITHUB_REPO", "torabata/superset")
-TRIGGER_LABEL = "devin-triage"
-STATE_FILE = Path(__file__).parent / "state.json"
 DEVIN_BASE = f"https://api.devin.ai/v3/organizations/{DEVIN_ORG_ID}"
 
+PLAYBOOK_ID = "playbook-8789c91fe2b94886a1e88df07a437353"
+KNOWLEDGE_IDS = [
+  "note-4504c5b86670487584f14029eb6968d0",  # Superset Coding Standards
+  "note-624c737593f04130ad032b8310258c62",  # PR & Commit Conventions
+  "note-0e70ea117e944ad899ba1966de693137",  # Safe-Change Heuristics
+]
 
-def load_state():
-   if STATE_FILE.exists():
-       return json.loads(STATE_FILE.read_text())
-   return {"dispatched_issues": [], "sessions": []}
+STRUCTURED_OUTPUT_SCHEMA = {
+  "type": "object",
+  "properties": {
+      "can_auto_fix": {"type": "boolean"},
+      "action_taken": {
+          "type": "string",
+          "enum": ["pr_opened", "skipped_unsafe", "aborted_too_complex"],
+      },
+      "complexity": {"type": "string", "enum": ["low", "medium", "high"]},
+      "category": {
+          "type": "string",
+          "enum": ["docs", "type-hints", "lint", "test", "refactor", "bug", "other"],
+      },
+      "pr_url": {"type": "string"},
+      "files_changed": {"type": "array", "items": {"type": "string"}},
+      "summary": {"type": "string"},
+      "reasoning": {"type": "string"},
+  },
+  "required": [
+      "can_auto_fix",
+      "action_taken",
+      "complexity",
+      "category",
+      "pr_url",
+      "summary",
+      "reasoning",
+  ],
+}
 
 
-def save_state(state):
-   STATE_FILE.write_text(json.dumps(state, indent=2))
+def load_issue_from_event() -> dict:
+  """Read the issue payload from the GitHub Actions event file."""
+  event_path = os.environ.get("GITHUB_EVENT_PATH")
+  if not event_path:
+      sys.exit("ERROR: GITHUB_EVENT_PATH not set (run inside GitHub Actions)")
+  with open(event_path) as f:
+      event = json.load(f)
+  if "issue" not in event:
+      sys.exit("ERROR: event payload does not contain an issue")
+  return event["issue"]
 
 
-def fetch_new_issues(state):
-   url = f"https://api.github.com/repos/{GITHUB_REPO}/issues"
-   headers = {"Accept": "application/vnd.github+json"}
-   if GITHUB_TOKEN:
-       headers["Authorization"] = f"Bearer {GITHUB_TOKEN}"
-   resp = requests.get(url, headers=headers, params={"labels": TRIGGER_LABEL, "state": "open", "per_page": 20}, timeout=15)
-   resp.raise_for_status()
-   dispatched = set(state["dispatched_issues"])
-   return [i for i in resp.json() if i["number"] not in dispatched]
+def dispatch_to_devin(issue: dict) -> dict:
+  prompt = f"""GitHub Issue #{issue['number']}: {issue['title']}
 
-
-def create_devin_session(issue):
-   prompt = f"""You are an autonomous software engineer working on: https://github.com/{GITHUB_REPO}
-
-GitHub Issue #{issue['number']}: {issue['title']}
+Repository: https://github.com/{GITHUB_REPO}
 
 Description:
-{issue.get('body', '') or ''}
+{issue.get('body') or ''}
 
-Instructions:
-1. Clone the repository.
-2. Read and understand the issue.
-3. Implement a fix on a new branch named devin/fix-issue-{issue['number']}.
-4. Write a clear commit message referencing the issue.
-5. Open a pull request against the master branch of {GITHUB_REPO}.
-6. In the PR description, explain what you changed and reference issue #{issue['number']}.
+Follow the playbook. Use your Knowledge Notes for coding standards,
+PR conventions, and safe-change heuristics."""
 
-When done, reply with the PR URL."""
+  resp = requests.post(
+      f"{DEVIN_BASE}/sessions",
+      headers={
+          "Authorization": f"Bearer {DEVIN_API_KEY}",
+          "Content-Type": "application/json",
+      },
+      json={
+          "prompt": prompt,
+          "playbook_id": PLAYBOOK_ID,
+          "knowledge_ids": KNOWLEDGE_IDS,
+          "repos": [GITHUB_REPO],
+          "structured_output_required": True,
+          "structured_output_schema": STRUCTURED_OUTPUT_SCHEMA,
+          "tags": ["auto-triage", f"issue-{issue['number']}"],
+          "title": f"Fix #{issue['number']}: {issue['title'][:60]}",
+          "max_acu_limit": 10,
+      },
+      timeout=30,
+  )
+  resp.raise_for_status()
+  return resp.json()
 
-   resp = requests.post(
-       f"{DEVIN_BASE}/sessions",
-       headers={"Authorization": f"Bearer {DEVIN_API_KEY}", "Content-Type": "application/json"},
-       json={"prompt": prompt},
-       timeout=30,
-   )
-   resp.raise_for_status()
-   return resp.json()
 
-
-def main():
-   state = load_state()
-   new_issues = fetch_new_issues(state)
-   if not new_issues:
-       print(f"[poll] No new issues with label '{TRIGGER_LABEL}'.")
-       return
-   for issue in new_issues:
-       num = issue["number"]
-       print(f"[dispatch] Issue #{num}: {issue['title']}")
-       try:
-           session = create_devin_session(issue)
-           print(f"  -> Devin session: {session.get('url', session.get('session_id'))}")
-           state["dispatched_issues"].append(num)
-           state.setdefault("sessions", []).append({
-               "issue_number": num,
-               "session_id": session.get("session_id", ""),
-               "session_url": session.get("url", ""),
-               "status": "new",
-           })
-           save_state(state)
-       except Exception as e:
-           print(f"  x Failed: {e}")
+def main() -> None:
+  issue = load_issue_from_event()
+  print(f"[dispatch] Issue #{issue['number']}: {issue['title']}")
+  session = dispatch_to_devin(issue)
+  print(f"  -> Devin session: {session.get('url')}")
+  print(f"  -> session_id:    {session.get('session_id')}")
+  print(f"  -> status:        {session.get('status')}")
 
 
 if __name__ == "__main__":
-   main()
+  main()
