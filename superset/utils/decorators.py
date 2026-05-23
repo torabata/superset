@@ -37,10 +37,17 @@ if TYPE_CHECKING:
 
 
 def statsd_gauge(metric_prefix: str | None = None) -> Callable[..., Any]:
+    """Decorator that reports success/failure via a StatsD gauge.
+
+    Emits ``<prefix>.ok`` on success, ``<prefix>.warning`` for client errors
+    (status < 500), and ``<prefix>.error`` otherwise.
+
+    Args:
+        metric_prefix: Optional metric name prefix. Defaults to the
+            decorated function's ``__name__``.
+    """
+
     def decorate(f: Callable[..., Any]) -> Callable[..., Any]:
-        """
-        Handle sending statsd gauge metric from any method or function
-        """
 
         def wrapped(*args: Any, **kwargs: Any) -> Any:
             metric_prefix_ = metric_prefix or f.__name__
@@ -50,7 +57,8 @@ def statsd_gauge(metric_prefix: str | None = None) -> Callable[..., Any]:
                 return result
             except Exception as ex:
                 if (
-                    hasattr(ex, "status") and ex.status < 500  # pylint: disable=no-member
+                    hasattr(ex, "status")
+                    and ex.status < 500  # pylint: disable=no-member
                 ):
                     app.config["STATS_LOGGER"].gauge(f"{metric_prefix_}.warning", 1)
                 else:
@@ -185,6 +193,12 @@ def debounce(duration: float | int = 0.1) -> Callable[..., Any]:
 
 
 def on_security_exception(self: Any, ex: Exception) -> Response:
+    """Return a 403 response with the exception message.
+
+    Args:
+        self: The view instance handling the request.
+        ex: The security exception that was raised.
+    """
     return self.response(403, **{"message": utils.error_msg_from_exception(ex)})
 
 
