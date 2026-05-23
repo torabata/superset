@@ -39,6 +39,18 @@ logger = logging.getLogger(__name__)
 
 
 def generate_cache_key(values_dict: dict[str, Any], key_prefix: str = "") -> str:
+    """Generate a deterministic cache key from a dictionary of values.
+
+    Serializes ``values_dict`` into a stable hash and optionally prepends
+    ``key_prefix`` to produce the final cache key string.
+
+    Args:
+        values_dict: Dictionary of values to hash into a cache key.
+        key_prefix: Optional string prefix prepended to the generated hash.
+
+    Returns:
+        A cache key string of the form ``"{key_prefix}{hash}"``.
+    """
     hash_str = hash_from_dict(values_dict, default=json_int_dttm_ser)
     cache_key = f"{key_prefix}{hash_str}"
 
@@ -60,6 +72,25 @@ def set_and_log_cache(
     cache_timeout: int | None = None,
     datasource_uid: str | None = None,
 ) -> None:
+    """Store a value in the cache and log the operation.
+
+    Writes ``cache_value`` (augmented with a UTC timestamp) to
+    ``cache_instance`` under ``cache_key``.  The entry is also recorded in
+    the metadata database when ``datasource_uid`` is provided and the
+    ``STORE_CACHE_KEYS_IN_METADATA_DB`` configuration flag is enabled.
+
+    No-ops silently when the cache backend is ``NullCache`` or when
+    ``cache_timeout`` equals ``CACHE_DISABLED_TIMEOUT``.
+
+    Args:
+        cache_instance: The Flask-Caching backend to write to.
+        cache_key: Key under which the value is stored.
+        cache_value: Dictionary payload to cache.
+        cache_timeout: TTL in seconds. Falls back to
+            ``CACHE_DEFAULT_TIMEOUT`` when ``None``.
+        datasource_uid: Optional datasource identifier used to persist
+            the cache key in the metadata database.
+    """
     if isinstance(cache_instance.cache, NullCache):
         return
 
