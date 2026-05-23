@@ -1,0 +1,28 @@
+name: Devin Issue Triage
+on:
+     issues:
+       types: [labeled]
+jobs:
+     triage:
+       if: github.event.label.name == 'devin-triage'
+       runs-on: ubuntu-latest
+
+       steps:
+         - name: Checkout orchestrator
+           uses: actions/checkout@v4
+
+         - name: Set up Python
+           uses: actions/setup-python@v5
+           with:
+             python-version: "3.12"
+
+         - name: Install dependencies
+           run: pip install requests python-dotenv
+
+         - name: Run orchestrator
+           env:
+             DEVIN_API_KEY: ${{ secrets.DEVIN_API_KEY }}
+             DEVIN_ORG_ID: ${{ secrets.DEVIN_ORG_ID }}
+             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+             GITHUB_REPO: ${{ github.repository }}
+           run: python3 orchestrator.py
