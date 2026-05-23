@@ -196,7 +196,7 @@ Use sentence-case capitalization for everything in the UI (except these **).
 
 Sentence case is predominantly lowercase. Capitalize only the initial character of the first word, and other words that require capitalization, like:
 
-- **Proper nouns.** Objects in the product _are not_ considered proper nouns e.g. dashboards, charts, saved queries etc. Proprietary feature names eg. SQL Lab, Preset Manager _are_ considered proper nouns
+- **Proper nouns.** Objects in the product _are not_ considered proper nouns e.g. dashboards, charts, saved queries etc. Proprietary feature names e.g. SQL Lab, Preset Manager _are_ considered proper nouns
 - **Acronyms** (e.g. CSS, HTML)
 - When referring to **UI labels that are themselves capitalized** from sentence case (e.g. page titles - Dashboards page, Charts page, Saved queries page, etc.)
 - User input that is reflected in the UI. E.g. a user-named a dashboard tab
