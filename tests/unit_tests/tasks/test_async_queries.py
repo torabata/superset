@@ -15,6 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pytest
 from flask_babel import lazy_gettext as _
@@ -33,7 +34,9 @@ from superset.exceptions import (
 @mock.patch("superset.tasks.async_queries.async_query_manager")
 @mock.patch("superset.tasks.async_queries.ChartDataQueryContextSchema")
 def test_load_chart_data_into_cache_with_error(
-    mock_query_context_schema_cls, mock_async_query_manager, mock_security_manager
+    mock_query_context_schema_cls: MagicMock,
+    mock_async_query_manager: MagicMock,
+    mock_security_manager: MagicMock,
 ):
     """Test that the task is gracefully marked failed in event of error"""
     from superset.tasks.async_queries import load_chart_data_into_cache
@@ -66,7 +69,9 @@ def test_load_chart_data_into_cache_with_error(
 @mock.patch("superset.tasks.async_queries.async_query_manager")
 @mock.patch("superset.tasks.async_queries.ChartDataQueryContextSchema")
 def test_load_chart_data_into_cache_with_superset_error_exception(
-    mock_query_context_schema_cls, mock_async_query_manager, mock_security_manager
+    mock_query_context_schema_cls: MagicMock,
+    mock_async_query_manager: MagicMock,
+    mock_security_manager: MagicMock,
 ):
     """Test that SupersetErrorException extracts SIP-40 style errors"""
     from superset.tasks.async_queries import load_chart_data_into_cache
@@ -109,7 +114,9 @@ def test_load_chart_data_into_cache_with_superset_error_exception(
 @mock.patch("superset.tasks.async_queries.async_query_manager")
 @mock.patch("superset.tasks.async_queries.ChartDataQueryContextSchema")
 def test_load_chart_data_into_cache_with_superset_errors_exception(
-    mock_query_context_schema_cls, mock_async_query_manager, mock_security_manager
+    mock_query_context_schema_cls: MagicMock,
+    mock_async_query_manager: MagicMock,
+    mock_security_manager: MagicMock,
 ):
     """Test that SupersetErrorsException extracts multiple SIP-40 style errors"""
     from superset.tasks.async_queries import load_chart_data_into_cache
@@ -161,10 +168,10 @@ def test_load_chart_data_into_cache_with_superset_errors_exception(
 @mock.patch("superset.tasks.async_queries.get_viz")
 @mock.patch("superset.tasks.async_queries.get_datasource_info")
 def test_load_explore_json_into_cache_preserves_oauth2_redirect_error(
-    mock_get_datasource_info,
-    mock_get_viz,
-    mock_async_query_manager,
-    mock_security_manager,
+    mock_get_datasource_info: MagicMock,
+    mock_get_viz: MagicMock,
+    mock_async_query_manager: MagicMock,
+    mock_security_manager: MagicMock,
 ):
     """
     OAuth2RedirectError raised by ``viz_obj.get_payload`` must reach the async
@@ -208,10 +215,10 @@ def test_load_explore_json_into_cache_preserves_oauth2_redirect_error(
 @mock.patch("superset.tasks.async_queries.get_viz")
 @mock.patch("superset.tasks.async_queries.get_datasource_info")
 def test_load_explore_json_into_cache_preserves_superset_errors_exception(
-    mock_get_datasource_info,
-    mock_get_viz,
-    mock_async_query_manager,
-    mock_security_manager,
+    mock_get_datasource_info: MagicMock,
+    mock_get_viz: MagicMock,
+    mock_async_query_manager: MagicMock,
+    mock_security_manager: MagicMock,
 ):
     """SupersetErrorsException must be preserved as a list of SIP-40 dicts."""
     from superset.tasks.async_queries import load_explore_json_into_cache
@@ -254,10 +261,10 @@ def test_load_explore_json_into_cache_preserves_superset_errors_exception(
 @mock.patch("superset.tasks.async_queries.get_viz")
 @mock.patch("superset.tasks.async_queries.get_datasource_info")
 def test_load_explore_json_into_cache_preserves_superset_viz_exception(
-    mock_get_datasource_info,
-    mock_get_viz,
-    mock_async_query_manager,
-    mock_security_manager,
+    mock_get_datasource_info: MagicMock,
+    mock_get_viz: MagicMock,
+    mock_async_query_manager: MagicMock,
+    mock_security_manager: MagicMock,
 ):
     """
     Test that SupersetVizException passes ``ex.errors`` straight through.
@@ -295,10 +302,10 @@ def test_load_explore_json_into_cache_preserves_superset_viz_exception(
 @mock.patch("superset.tasks.async_queries.get_viz")
 @mock.patch("superset.tasks.async_queries.get_datasource_info")
 def test_load_explore_json_into_cache_falls_back_to_string_for_generic_exception(
-    mock_get_datasource_info,
-    mock_get_viz,
-    mock_async_query_manager,
-    mock_security_manager,
+    mock_get_datasource_info: MagicMock,
+    mock_get_viz: MagicMock,
+    mock_async_query_manager: MagicMock,
+    mock_security_manager: MagicMock,
 ):
     """
     Test that Non-Superset exception are passed as plain-string error.

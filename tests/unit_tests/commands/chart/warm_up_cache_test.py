@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
@@ -25,7 +25,7 @@ from superset.models.slice import Slice
 @patch("superset.commands.chart.warm_up_cache.get_dashboard_extra_filters")
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
 def test_applies_dashboard_filters_to_non_legacy_chart(
-    mock_chart_data_command, mock_get_dashboard_filters
+    mock_chart_data_command: MagicMock, mock_get_dashboard_filters: MagicMock
 ):
     """Verify dashboard filters are added to query.filter for non-legacy viz"""
     # Setup: Mock dashboard filters response
@@ -81,7 +81,7 @@ def test_applies_dashboard_filters_to_non_legacy_chart(
 
 
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
-def test_no_filters_applied_without_dashboard_id(mock_chart_data_command):
+def test_no_filters_applied_without_dashboard_id(mock_chart_data_command: MagicMock):
     """Verify no filters are added when dashboard_id is not provided"""
     chart = Slice(
         id=124,
@@ -119,7 +119,7 @@ def test_no_filters_applied_without_dashboard_id(mock_chart_data_command):
 @patch("superset.commands.chart.warm_up_cache.get_dashboard_extra_filters")
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
 def test_extra_filters_parameter_takes_precedence(
-    mock_chart_data_command, mock_get_dashboard_filters
+    mock_chart_data_command: MagicMock, mock_get_dashboard_filters: MagicMock
 ):
     """Verify extra_filters parameter is used instead of fetching from dashboard"""
     chart = Slice(
@@ -159,7 +159,7 @@ def test_extra_filters_parameter_takes_precedence(
 @patch("superset.commands.chart.warm_up_cache.get_dashboard_extra_filters")
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
 def test_handles_multiple_queries_in_query_context(
-    mock_chart_data_command, mock_get_dashboard_filters
+    mock_chart_data_command: MagicMock, mock_get_dashboard_filters: MagicMock
 ):
     """Verify filters are added to ALL queries in the query context"""
     mock_get_dashboard_filters.return_value = [
@@ -206,7 +206,7 @@ def test_handles_multiple_queries_in_query_context(
 @patch("superset.commands.chart.warm_up_cache.get_dashboard_extra_filters")
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
 def test_handles_empty_dashboard_filters(
-    mock_chart_data_command, mock_get_dashboard_filters
+    mock_chart_data_command: MagicMock, mock_get_dashboard_filters: MagicMock
 ):
     """Verify graceful handling when dashboard has no filters configured"""
     # get_dashboard_extra_filters returns empty list
@@ -246,7 +246,7 @@ def test_handles_empty_dashboard_filters(
 
 
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
-def test_invalid_json_in_extra_filters_raises_error(mock_chart_data_command):
+def test_invalid_json_in_extra_filters_raises_error(mock_chart_data_command: MagicMock):
     """Verify that invalid JSON in extra_filters raises appropriate error"""
     chart = Slice(
         id=128,
@@ -284,7 +284,9 @@ def test_invalid_json_in_extra_filters_raises_error(mock_chart_data_command):
 
 
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
-def test_none_query_context_raises_chart_invalid_error(mock_chart_data_command):
+def test_none_query_context_raises_chart_invalid_error(
+    mock_chart_data_command: MagicMock,
+):
     """Verify that None query context raises ChartInvalidError for non-legacy charts"""
     chart = Slice(
         id=129,
@@ -349,7 +351,7 @@ def test_legacy_chart_without_datasource_raises_error():
 @patch("superset.commands.chart.warm_up_cache.viz_types", ["table"])
 @patch("superset.commands.chart.warm_up_cache.g")
 def test_legacy_chart_warm_up_with_dashboard(
-    mock_g, mock_get_viz, mock_get_dashboard_filters
+    mock_g: MagicMock, mock_get_viz: MagicMock, mock_get_dashboard_filters: MagicMock
 ):
     """Test successful legacy chart warm-up with dashboard filters"""
     mock_get_dashboard_filters.return_value = [
@@ -393,7 +395,9 @@ def test_legacy_chart_warm_up_with_dashboard(
 @patch("superset.commands.chart.warm_up_cache.get_viz")
 @patch("superset.commands.chart.warm_up_cache.viz_types", ["table"])
 @patch("superset.commands.chart.warm_up_cache.g")
-def test_legacy_chart_warm_up_without_dashboard(mock_g, mock_get_viz):
+def test_legacy_chart_warm_up_without_dashboard(
+    mock_g: MagicMock, mock_get_viz: MagicMock
+):
     """Test successful legacy chart warm-up without dashboard"""
     chart = Slice(
         id=134,
@@ -428,7 +432,7 @@ def test_legacy_chart_warm_up_without_dashboard(mock_g, mock_get_viz):
 
 
 @patch("superset.commands.chart.warm_up_cache.ChartDataCommand")
-def test_non_legacy_chart_returns_first_error(mock_chart_data_command):
+def test_non_legacy_chart_returns_first_error(mock_chart_data_command: MagicMock):
     """Test that first query error is returned when multiple queries exist"""
     chart = Slice(
         id=132,
@@ -463,7 +467,7 @@ def test_non_legacy_chart_returns_first_error(mock_chart_data_command):
 
 
 @patch("superset.commands.chart.warm_up_cache.db")
-def test_validate_with_integer_chart_id(mock_db):
+def test_validate_with_integer_chart_id(mock_db: MagicMock):
     """Test validation when passing integer chart ID instead of Slice object"""
     chart = Slice(id=133, slice_name="Test Chart")
     mock_db.session.query.return_value.filter_by.return_value.scalar.return_value = (
@@ -478,7 +482,7 @@ def test_validate_with_integer_chart_id(mock_db):
 
 
 @patch("superset.commands.chart.warm_up_cache.db")
-def test_validate_with_nonexistent_chart_id(mock_db):
+def test_validate_with_nonexistent_chart_id(mock_db: MagicMock):
     """Test validation raises error when chart ID does not exist"""
     from superset.commands.chart.exceptions import WarmUpCacheChartNotFoundError
 

@@ -37,7 +37,7 @@ def test_transpile_virtual_dataset_sql_empty_sql():
 
 
 @patch("superset.commands.importers.v1.examples.db")
-def test_transpile_virtual_dataset_sql_database_not_found(mock_db):
+def test_transpile_virtual_dataset_sql_database_not_found(mock_db: MagicMock):
     """Test graceful handling when database is not found."""
     mock_db.session.query.return_value.get.return_value = None
 
@@ -52,7 +52,9 @@ def test_transpile_virtual_dataset_sql_database_not_found(mock_db):
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_success(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_success(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test successful SQL transpilation with source engine."""
     mock_database = MagicMock()
     mock_database.db_engine_spec.engine = "mysql"
@@ -73,7 +75,9 @@ def test_transpile_virtual_dataset_sql_success(mock_transpile, mock_db):
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_no_source_engine(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_no_source_engine(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test transpilation when source_db_engine is not specified (legacy)."""
     mock_database = MagicMock()
     mock_database.db_engine_spec.engine = "mysql"
@@ -91,7 +95,9 @@ def test_transpile_virtual_dataset_sql_no_source_engine(mock_transpile, mock_db)
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_no_change(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_no_change(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test when transpilation returns same SQL (no dialect differences)."""
     mock_database = MagicMock()
     mock_database.db_engine_spec.engine = "postgresql"
@@ -112,7 +118,9 @@ def test_transpile_virtual_dataset_sql_no_change(mock_transpile, mock_db):
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_error_fallback(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_error_fallback(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test graceful fallback when transpilation fails."""
     from superset.exceptions import QueryClauseValidationException
 
@@ -136,7 +144,9 @@ def test_transpile_virtual_dataset_sql_error_fallback(mock_transpile, mock_db):
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_postgres_to_duckdb(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_postgres_to_duckdb(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test transpilation from PostgreSQL to DuckDB."""
     mock_database = MagicMock()
     mock_database.db_engine_spec.engine = "duckdb"
@@ -165,7 +175,9 @@ def test_transpile_virtual_dataset_sql_postgres_to_duckdb(mock_transpile, mock_d
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_postgres_to_clickhouse(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_postgres_to_clickhouse(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test transpilation from PostgreSQL to ClickHouse.
 
     ClickHouse has different syntax for date functions, so this tests
@@ -194,7 +206,9 @@ def test_transpile_virtual_dataset_sql_postgres_to_clickhouse(mock_transpile, mo
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_postgres_to_mysql(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_postgres_to_mysql(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test transpilation from PostgreSQL to MySQL.
 
     MySQL uses backticks for identifiers and has different casting syntax.
@@ -222,7 +236,9 @@ def test_transpile_virtual_dataset_sql_postgres_to_mysql(mock_transpile, mock_db
 
 @patch("superset.commands.importers.v1.examples.db")
 @patch("superset.commands.importers.v1.examples.transpile_to_dialect")
-def test_transpile_virtual_dataset_sql_postgres_to_sqlite(mock_transpile, mock_db):
+def test_transpile_virtual_dataset_sql_postgres_to_sqlite(
+    mock_transpile: MagicMock, mock_db: MagicMock
+):
     """Test transpilation from PostgreSQL to SQLite."""
     mock_database = MagicMock()
     mock_database.db_engine_spec.engine = "sqlite"
@@ -253,11 +269,11 @@ def test_transpile_virtual_dataset_sql_postgres_to_sqlite(mock_transpile, mock_d
 @patch("superset.commands.importers.v1.examples.import_dataset")
 @patch("superset.commands.importers.v1.examples.import_database")
 def test_import_passes_ignore_permissions_to_all_importers(
-    mock_import_db,
-    mock_import_dataset,
-    mock_import_chart,
-    mock_import_dashboard,
-    mock_safe_insert,
+    mock_import_db: MagicMock,
+    mock_import_dataset: MagicMock,
+    mock_import_chart: MagicMock,
+    mock_import_dashboard: MagicMock,
+    mock_safe_insert: MagicMock,
 ):
     """_import() must pass ignore_permissions=True to all importers.
 

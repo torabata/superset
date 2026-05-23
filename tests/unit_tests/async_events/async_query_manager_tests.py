@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 from unittest import mock
-from unittest.mock import ANY, Mock
+from unittest.mock import ANY, MagicMock, Mock
 
 from flask import g
 from jwt import encode
@@ -87,7 +87,7 @@ def test_parse_channel_id_from_request_bad_jwt(async_query_manager):
 )
 @mock.patch("superset.is_feature_enabled")
 def test_submit_chart_data_job_as_guest_user(
-    is_feature_enabled_mock, async_query_manager, cache_type, cache_backend
+    is_feature_enabled_mock: MagicMock, async_query_manager, cache_type, cache_backend
 ):
     is_feature_enabled_mock.return_value = True
     set_current_as_guest_user()
@@ -131,7 +131,7 @@ def test_submit_chart_data_job_as_guest_user(
 )
 @mock.patch("superset.is_feature_enabled")
 def test_submit_explore_json_job_as_guest_user(
-    is_feature_enabled_mock, async_query_manager, cache_type, cache_backend
+    is_feature_enabled_mock: MagicMock, async_query_manager, cache_type, cache_backend
 ):
     is_feature_enabled_mock.return_value = True
     set_current_as_guest_user()

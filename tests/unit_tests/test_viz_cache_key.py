@@ -20,7 +20,7 @@ inclusion.
 """
 
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from flask_appbuilder.security.sqla.models import User
 
@@ -93,7 +93,7 @@ def test_same_user_same_query_idempotent():
 
 
 @patch("superset.utils.cache_keys.feature_flag_manager")
-def test_cache_query_by_user_flag_yields_distinct_keys(feature_flag_mock):
+def test_cache_query_by_user_flag_yields_distinct_keys(feature_flag_mock: MagicMock):
     """
     Global ``CACHE_QUERY_BY_USER`` flag also reaches the legacy viz path.
     """
