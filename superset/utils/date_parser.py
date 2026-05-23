@@ -664,7 +664,7 @@ def add_ago_to_since(since: str) -> str:
 
 class EvalText:  # pylint: disable=too-few-public-methods
     def __init__(self, tokens: ParseResults) -> None:
-        self.value = tokens[0]
+        self.value: str = tokens[0]
 
     def eval(self) -> str:
         # strip quotes
@@ -673,7 +673,7 @@ class EvalText:  # pylint: disable=too-few-public-methods
 
 class EvalDateTimeFunc:  # pylint: disable=too-few-public-methods
     def __init__(self, tokens: ParseResults) -> None:
-        self.value = tokens[1]
+        self.value: EvalText = tokens[1]
 
     def eval(self) -> datetime:
         return parse_human_datetime(self.value.eval())
@@ -681,7 +681,7 @@ class EvalDateTimeFunc:  # pylint: disable=too-few-public-methods
 
 class EvalDateAddFunc:  # pylint: disable=too-few-public-methods
     def __init__(self, tokens: ParseResults) -> None:
-        self.value = tokens[1]
+        self.value: ParseResults = tokens[1]
 
     def eval(self) -> datetime:
         dttm_expression, delta, unit = self.value
@@ -695,7 +695,7 @@ class EvalDateAddFunc:  # pylint: disable=too-few-public-methods
 
 class EvalDateDiffFunc:  # pylint: disable=too-few-public-methods
     def __init__(self, tokens: ParseResults) -> None:
-        self.value = tokens[1]
+        self.value: ParseResults = tokens[1]
 
     def eval(self) -> int:
         if len(self.value) == 2:
@@ -713,7 +713,7 @@ class EvalDateDiffFunc:  # pylint: disable=too-few-public-methods
 
 class EvalDateTruncFunc:  # pylint: disable=too-few-public-methods
     def __init__(self, tokens: ParseResults) -> None:
-        self.value = tokens[1]
+        self.value: ParseResults = tokens[1]
 
     def eval(self) -> datetime:
         dttm_expression, unit = self.value
@@ -744,7 +744,7 @@ class EvalDateTruncFunc:  # pylint: disable=too-few-public-methods
 
 class EvalLastDayFunc:  # pylint: disable=too-few-public-methods
     def __init__(self, tokens: ParseResults) -> None:
-        self.value = tokens[1]
+        self.value: ParseResults = tokens[1]
 
     def eval(self) -> datetime:
         dttm_expression, unit = self.value
@@ -769,11 +769,12 @@ class EvalLastDayFunc:  # pylint: disable=too-few-public-methods
 
 class EvalHolidayFunc:  # pylint: disable=too-few-public-methods
     def __init__(self, tokens: ParseResults) -> None:
-        self.value = tokens[1]
+        self.value: ParseResults = tokens[1]
 
     def eval(self) -> datetime:
-        holiday = self.value[0].eval()
-        dttm, country = [None, None]
+        holiday: str = self.value[0].eval()
+        dttm: datetime | None = None
+        country: str | None = None
         if len(self.value) >= 2:
             dttm = self.value[1].eval()
         if len(self.value) == 3:
@@ -791,7 +792,7 @@ class EvalHolidayFunc:  # pylint: disable=too-few-public-methods
 
 
 @lru_cache(maxsize=LRU_CACHE_MAX_SIZE)
-def datetime_parser() -> ParseResults:  # pylint: disable=too-many-locals
+def datetime_parser() -> ParserElement:  # pylint: disable=too-many-locals
     (  # pylint: disable=invalid-name
         DATETIME,  # noqa: N806
         DATEADD,  # noqa: N806
@@ -902,10 +903,10 @@ def datetime_eval(datetime_expression: str | None = None) -> datetime | None:
 
 
 class DateRangeMigration:  # pylint: disable=too-few-public-methods
-    x_dateunit_in_since = (
+    x_dateunit_in_since: str = (
         r'"time_range":\s*"\s*[0-9]+\s+(day|week|month|quarter|year)s?\s*\s:\s'
     )
-    x_dateunit_in_until = (
+    x_dateunit_in_until: str = (
         r'"time_range":\s*".*\s:\s*[0-9]+\s+(day|week|month|quarter|year)s?\s*"'
     )
-    x_dateunit = r"^\s*[0-9]+\s+(day|week|month|quarter|year)s?\s*$"
+    x_dateunit: str = r"^\s*[0-9]+\s+(day|week|month|quarter|year)s?\s*$"
