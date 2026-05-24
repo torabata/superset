@@ -670,6 +670,8 @@ def add_ago_to_since(since: str) -> str:
 
 
 class EvalText:  # pylint: disable=too-few-public-methods
+    value: str
+
     def __init__(self, tokens: ParseResults) -> None:
         self.value = tokens[0]
 
@@ -679,6 +681,8 @@ class EvalText:  # pylint: disable=too-few-public-methods
 
 
 class EvalDateTimeFunc:  # pylint: disable=too-few-public-methods
+    value: EvalText
+
     def __init__(self, tokens: ParseResults) -> None:
         self.value = tokens[1]
 
@@ -687,6 +691,8 @@ class EvalDateTimeFunc:  # pylint: disable=too-few-public-methods
 
 
 class EvalDateAddFunc:  # pylint: disable=too-few-public-methods
+    value: ParseResults
+
     def __init__(self, tokens: ParseResults) -> None:
         self.value = tokens[1]
 
@@ -701,6 +707,8 @@ class EvalDateAddFunc:  # pylint: disable=too-few-public-methods
 
 
 class EvalDateDiffFunc:  # pylint: disable=too-few-public-methods
+    value: ParseResults
+
     def __init__(self, tokens: ParseResults) -> None:
         self.value = tokens[1]
 
@@ -719,6 +727,8 @@ class EvalDateDiffFunc:  # pylint: disable=too-few-public-methods
 
 
 class EvalDateTruncFunc:  # pylint: disable=too-few-public-methods
+    value: ParseResults
+
     def __init__(self, tokens: ParseResults) -> None:
         self.value = tokens[1]
 
@@ -750,6 +760,8 @@ class EvalDateTruncFunc:  # pylint: disable=too-few-public-methods
 
 
 class EvalLastDayFunc:  # pylint: disable=too-few-public-methods
+    value: ParseResults
+
     def __init__(self, tokens: ParseResults) -> None:
         self.value = tokens[1]
 
@@ -775,6 +787,8 @@ class EvalLastDayFunc:  # pylint: disable=too-few-public-methods
 
 
 class EvalHolidayFunc:  # pylint: disable=too-few-public-methods
+    value: ParseResults
+
     def __init__(self, tokens: ParseResults) -> None:
         self.value = tokens[1]
 
@@ -798,7 +812,7 @@ class EvalHolidayFunc:  # pylint: disable=too-few-public-methods
 
 
 @lru_cache(maxsize=LRU_CACHE_MAX_SIZE)
-def datetime_parser() -> ParseResults:  # pylint: disable=too-many-locals
+def datetime_parser() -> ParserElement:  # pylint: disable=too-many-locals
     (  # pylint: disable=invalid-name
         DATETIME,  # noqa: N806
         DATEADD,  # noqa: N806
