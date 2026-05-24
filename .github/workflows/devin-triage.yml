@@ -23,6 +23,8 @@ jobs:
            env:
              DEVIN_API_KEY: ${{ secrets.DEVIN_API_KEY }}
              DEVIN_ORG_ID: ${{ secrets.DEVIN_ORG_ID }}
+             DEVIN_PLAYBOOK_ID: ${{ secrets.DEVIN_PLAYBOOK_ID }}
+             DEVIN_KNOWLEDGE_IDS: ${{ secrets.DEVIN_KNOWLEDGE_IDS }}
              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
              GITHUB_REPO: ${{ github.repository }}
            run: python3 orchestrator.py
