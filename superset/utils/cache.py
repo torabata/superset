@@ -39,6 +39,15 @@ logger = logging.getLogger(__name__)
 
 
 def generate_cache_key(values_dict: dict[str, Any], key_prefix: str = "") -> str:
+    """Generate a deterministic cache key from a dictionary of values.
+
+    Args:
+        values_dict: Dictionary of values to hash into the cache key.
+        key_prefix: Optional string prefix prepended to the generated hash.
+
+    Returns:
+        A cache key string composed of the prefix and a hash of the values.
+    """
     hash_str = hash_from_dict(values_dict, default=json_int_dttm_ser)
     cache_key = f"{key_prefix}{hash_str}"
 
@@ -60,6 +69,21 @@ def set_and_log_cache(
     cache_timeout: int | None = None,
     datasource_uid: str | None = None,
 ) -> None:
+    """Store a value in the cache and log the operation.
+
+    Adds a timestamp to the cached value, records cache-set metrics, and
+    optionally persists the cache key in the metadata database for tracking.
+
+    Args:
+        cache_instance: The Flask-Caching backend to store the value in.
+        cache_key: The key under which the value is stored.
+        cache_value: The dictionary payload to cache.
+        cache_timeout: Time-to-live in seconds. Falls back to the
+            ``CACHE_DEFAULT_TIMEOUT`` configuration value when ``None``.
+        datasource_uid: Optional datasource identifier. When provided and
+            ``STORE_CACHE_KEYS_IN_METADATA_DB`` is enabled, the key is
+            persisted as a ``CacheKey`` row.
+    """
     if isinstance(cache_instance.cache, NullCache):
         return
 
